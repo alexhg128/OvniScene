@@ -6,12 +6,14 @@
   "author": "Alejandro Hahn <halexhg@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "prebuild": "rm -r dist/ || true && mkdir dist && cp index.html dist",
+    "prebuild": "shx rm -rf dist/ || true && shx mkdir dist && shx cp index.html dist",
     "build": "yarn prebuild && webpack --env=production",
     "start": "yarn prebuild && webpack --env=development"
   },
   "devDependencies": {
     "raw-loader": "^4.0.2",
+    "shelljs": "^0.8.4",
+    "shx": "^0.3.3",
     "ts-loader": "^8.0.14",
     "typescript": "^4.1.3",
     "webpack": "^5.18.0",
