@@ -6,7 +6,7 @@
   "author": "Alejandro Hahn <halexhg@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "prebuild": "rm -r dist/ && mkdir dist && cp index.html dist",
+    "prebuild": "rm -r dist/ || true && mkdir dist && cp index.html dist",
     "build": "yarn prebuild && webpack --env=production",
     "start": "yarn prebuild && webpack --env=development"
   },
