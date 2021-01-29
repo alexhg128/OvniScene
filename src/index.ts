@@ -15,7 +15,8 @@ var cow: THREE.Object3D;
 
 const init = () => {
 	camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 2000 );
-    camera.position.set(-5, 0, 12);
+    camera.position.set(-4, 5, 21);
+    camera.rotateY(50);
     scene = new THREE.Scene();
     scene.background = new THREE.Color('black');
 	//geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
@@ -28,7 +29,8 @@ const init = () => {
     const moon_geometry = new THREE.SphereGeometry( 1, 32, 32 );
     const moon_mat = new THREE.MeshBasicMaterial( {color: 0xffffff} );
     const sphere = new THREE.Mesh( moon_geometry, moon_mat );
-    sphere.position.set(-3, 9, -4)
+    sphere.position.set(-3, 8, -10)
+    
     scene.add( sphere );
 
     loader.load(
@@ -81,15 +83,42 @@ const init = () => {
         }
     )
 
+    let materialArray = [];
+    let texture_ft = new THREE.TextureLoader().load('./divine_ft.jpg');
+    let texture_bk = new THREE.TextureLoader().load('./divine_bk.jpg');
+    let texture_up = new THREE.TextureLoader().load('./divine_up.jpg');
+    let texture_dn = new THREE.TextureLoader().load('./divine_dn.jpg');
+    let texture_rt = new THREE.TextureLoader().load('./divine_rt.jpg');
+    let texture_lf = new THREE.TextureLoader().load('./divine_lf.jpg');
+    
+    materialArray.push(new THREE.MeshBasicMaterial( { map: texture_ft }));
+    materialArray.push(new THREE.MeshBasicMaterial( { map: texture_bk }));
+    materialArray.push(new THREE.MeshBasicMaterial( { map: texture_up }));
+    materialArray.push(new THREE.MeshBasicMaterial( { map: texture_dn }));
+    materialArray.push(new THREE.MeshBasicMaterial( { map: texture_rt }));
+    materialArray.push(new THREE.MeshBasicMaterial( { map: texture_lf }));
+    
+    for (let i = 0; i < 6; i++)
+        materialArray[i].side = THREE.BackSide;
+    
+    let skyboxGeo = new THREE.BoxGeometry( 300, 300, 300);
+    let skybox = new THREE.Mesh( skyboxGeo, materialArray );
+    skybox.position.set(0,0,0)
+    scene.add( skybox );
+
     renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.setAnimationLoop( animation );
     document.body.appendChild( renderer.domElement );
     renderer.render( scene, camera );
 
+    /*
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 5, 0);
     controls.update();
+    */
+    
+    
 }
 
 const animation = (time: number) => {
@@ -102,4 +131,6 @@ const animation = (time: number) => {
 	renderer.render( scene, camera );
 }
 
-init();
+window.onload = () => {
+    init();
+}
