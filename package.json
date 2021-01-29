@@ -8,7 +8,8 @@
   "scripts": {
     "prebuild": "shx rm -rf dist/ || true && shx mkdir dist && shx cp public/* dist",
     "build": "yarn prebuild && webpack --env=production",
-    "start": "yarn prebuild && webpack --env=development"
+    "start": "yarn prebuild && webpack --env=development",
+    "publish": "shx rm -rf docs/ || true && yarn build && shx mv dist docs"
   },
   "devDependencies": {
     "raw-loader": "^4.0.2",
