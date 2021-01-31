@@ -24,3 +24,14 @@ scene.populate().then(() => {
 });
 
 window.addEventListener("resize", scene.resize, false);
+
+var ufoAudio = new Audio("./ufo.mp3")
+ufoAudio.loop = true;
+ufoAudio.volume = 0.2;
+var cowAudio = new Audio("./cow.wav");
+cowAudio.volume = 0.15;
+
+document.body.addEventListener("click", function () {
+    //ufoAudio.play()
+    //cowAudio.play();
+})
