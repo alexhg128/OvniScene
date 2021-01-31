@@ -1,5 +1,6 @@
 import { Color, Mesh, MeshBasicMaterial, Object3D, Scene, TextureLoader, BackSide, BoxGeometry } from "three";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import { ControlPanel } from "../gui";
 import { SceneObject } from "./object";
 
 class SkyboxObject extends SceneObject {
@@ -38,6 +39,17 @@ class SkyboxObject extends SceneObject {
 
     animate(time: number) {
         if(!this.model) return;
+    }
+
+    addControllers(gui: ControlPanel): void {
+        gui.addFolder("Skybox (position)");
+        gui.addSlider("Skybox (position)", this.model.position, "x", -150, 150, 0.1);
+        gui.addSlider("Skybox (position)", this.model.position, "y", -150, 150, 0.1);
+        gui.addSlider("Skybox (position)", this.model.position, "z", -150, 150, 0.1);
+        gui.addFolder("Skybox (rotation)");
+        gui.addSlider("Skybox (rotation)", this.model.rotation, "x", 0, Math.PI * 2, 0.1);
+        gui.addSlider("Skybox (rotation)", this.model.rotation, "y", 0, Math.PI * 2, 0.1);
+        gui.addSlider("Skybox (rotation)", this.model.rotation, "z", 0, Math.PI * 2, 0.1);
     }
 
 }

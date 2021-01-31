@@ -1,3 +1,4 @@
+import { ControlPanel } from "./gui";
 import { UfoScene } from "./scene/ufo.scene"
 
 const init = () => {
@@ -18,6 +19,8 @@ scene.createCamera();
 scene.createRenderer();
 scene.populate().then(() => {
     scene.render();
+    const gui = new ControlPanel();
+    scene.addControllers(gui);
 });
 
 window.addEventListener("resize", scene.resize, false);

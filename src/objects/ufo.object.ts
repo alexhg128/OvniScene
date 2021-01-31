@@ -1,6 +1,7 @@
 import { type } from "superstruct";
 import { Color, CubeCamera, DoubleSide, LinearMipmapLinearFilter, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, MeshStandardMaterial, Object3D, RGBFormat, Scene, TextureLoader, WebGLCubeRenderTarget } from "three";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import { ControlPanel } from "../gui";
 import { SceneObject } from "./object";
 
 class UfoObject extends SceneObject {
@@ -26,17 +27,13 @@ class UfoObject extends SceneObject {
             chrome.needsUpdate = true;
             let loader = new OBJLoader();
             loader.load('./ufo.obj', (object: Object3D) => {
-                console.log(object)
                 object.traverse((child) => {
-                    console.log(child)
                     if(child instanceof Mesh) {
                         child.add(this.cube)
                         this.material.color.set(this.color);
 
                         child.material = chrome;
-                        (child.material as MeshPhongMaterial).color.set("#ffffff")
-                        console.log(child)
-                        
+                        (child.material as MeshPhongMaterial).color.set("#ffffff")                        
                         child.geometry.center();
                     }
                 })
@@ -60,6 +57,17 @@ class UfoObject extends SceneObject {
     animate(time: number) {
         if(!this.model) return;
         this.model.rotation.y = time / 2000;
+    }
+
+    addControllers(gui: ControlPanel): void {
+        gui.addFolder("UFO(position)");
+        gui.addSlider("UFO(position)", this.model.position, "x", -150, 150, 0.1);
+        gui.addSlider("UFO(position)", this.model.position, "y", -150, 150, 0.1);
+        gui.addSlider("UFO(position)", this.model.position, "z", -150, 150, 0.1);
+        gui.addFolder("UFO(rotation)");
+        gui.addSlider("UFO(rotation)", this.model.rotation, "x", 0, Math.PI * 2, 0.1);
+        gui.addSlider("UFO(rotation)", this.model.rotation, "y", 0, Math.PI * 2, 0.1);
+        gui.addSlider("UFO(rotation)", this.model.rotation, "z", 0, Math.PI * 2, 0.1);
     }
 
 }

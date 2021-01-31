@@ -1,5 +1,6 @@
 import { Color, Mesh, MeshBasicMaterial, Object3D, Scene } from "three";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import { ControlPanel } from "../gui";
 import { SceneObject } from "./object";
 
 class CowObject extends SceneObject {
@@ -33,7 +34,19 @@ class CowObject extends SceneObject {
 
     animate(time: number) {
         if(!this.model) return;
-        this.model.rotation.x = time / 5000;
+            return;
+            this.model.rotation.x = time / 5000;
+    }
+
+    addControllers(gui: ControlPanel): void {
+        gui.addFolder("Cow (position)");
+        gui.addSlider("Cow (position)", this.model.position, "x", -150, 150, 0.1);
+        gui.addSlider("Cow (position)", this.model.position, "y", -150, 150, 0.1);
+        gui.addSlider("Cow (position)", this.model.position, "z", -150, 150, 0.1);
+        gui.addFolder("Cow (rotation)");
+        gui.addSlider("Cow (rotation)", this.model.rotation, "x", 0, Math.PI * 2, 0.1);
+        gui.addSlider("Cow (rotation)", this.model.rotation, "y", 0, Math.PI * 2, 0.1);
+        gui.addSlider("Cow (rotation)", this.model.rotation, "z", 0, Math.PI * 2, 0.1);
     }
 
 }

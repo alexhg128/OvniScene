@@ -2,6 +2,7 @@ import { AdditiveBlending, Color, FrontSide, IUniform, Mesh, MeshBasicMaterial, 
 import { SceneObject } from "./object";
 import vShader from '../shaders/moon.v.glsl';
 import fShader from '../shaders/moon.f.glsl';
+import { ControlPanel } from "../gui";
 
 class MoonObject extends SceneObject {
 
@@ -54,6 +55,25 @@ class MoonObject extends SceneObject {
 
     animate(time: number) {
         if(!this.model) return;
+    }
+
+    addControllers(gui: ControlPanel): void {
+        gui.addFolder("Moon (position)");
+        gui.addSlider("Moon (position)", this.model.position, "x", -150, 150, 0.1);
+        gui.addSlider("Moon (position)", this.model.position, "y", -150, 150, 0.1);
+        gui.addSlider("Moon (position)", this.model.position, "z", -150, 150, 0.1);
+        gui.addFolder("Moon (rotation)");
+        gui.addSlider("Moon (rotation)", this.model.rotation, "x", 0, Math.PI * 2, 0.1);
+        gui.addSlider("Moon (rotation)", this.model.rotation, "y", 0, Math.PI * 2, 0.1);
+        gui.addSlider("Moon (rotation)", this.model.rotation, "z", 0, Math.PI * 2, 0.1);
+        gui.addFolder("Moon Glow (position)");
+        gui.addSlider("Moon Glow (position)", this.glow.position, "x", -150, 150, 0.1);
+        gui.addSlider("Moon Glow (position)", this.glow.position, "y", -150, 150, 0.1);
+        gui.addSlider("Moon Glow (position)", this.glow.position, "z", -150, 150, 0.1);
+        gui.addFolder("Moon Glow (rotation)");
+        gui.addSlider("Moon Glow (rotation)", this.glow.rotation, "x", 0, Math.PI * 2, 0.1);
+        gui.addSlider("Moon Glow (rotation)", this.glow.rotation, "y", 0, Math.PI * 2, 0.1);
+        gui.addSlider("Moon Glow (rotation)", this.glow.rotation, "z", 0, Math.PI * 2, 0.1);
     }
 
 }
