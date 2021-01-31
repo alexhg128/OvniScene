@@ -1,11 +1,12 @@
-import { Color, Mesh, MeshBasicMaterial, Object3D, Scene } from "three";
+import { Color, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, Object3D, Scene } from "three";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import { ControlPanel } from "../gui";
 import { SceneObject } from "./object";
 
 class CowObject extends SceneObject {
 
-    material: MeshBasicMaterial = new MeshBasicMaterial();
+    model: Object3D;
+    material: MeshBasicMaterial = new MeshLambertMaterial({ color: 0xFFB6C1 });
     color = new Color(0xFFB6C1);
 
     async build() {
@@ -16,6 +17,8 @@ class CowObject extends SceneObject {
                     if(child instanceof Mesh) {
                         this.material.color.set(this.color);
                         child.material = this.material
+                        child.castShadow = true;
+                        child.receiveShadow = true;
                         child.geometry.center();
                     }
                 })
@@ -34,7 +37,6 @@ class CowObject extends SceneObject {
 
     animate(time: number) {
         if(!this.model) return;
-            return;
             this.model.rotation.x = time / 5000;
     }
 

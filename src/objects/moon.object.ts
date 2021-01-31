@@ -6,6 +6,7 @@ import { ControlPanel } from "../gui";
 
 class MoonObject extends SceneObject {
 
+    model: Object3D;
     material: MeshBasicMaterial = new MeshBasicMaterial();
     color = new Color(0xFFB6C1);
     glow: Object3D;
@@ -21,7 +22,7 @@ class MoonObject extends SceneObject {
         const moon_geometry = new SphereGeometry( 1, 32, 32 );
         const moon_mat = new MeshBasicMaterial( { map: moonTexture } );
         const sphere = new Mesh( moon_geometry, moon_mat );
-        sphere.position.set(-3, 8, -10)
+        sphere.position.set(-7, 16, -15)
         this.model = sphere;
 
         var customMaterial = new ShaderMaterial( 

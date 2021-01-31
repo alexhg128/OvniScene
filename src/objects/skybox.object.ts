@@ -5,6 +5,7 @@ import { SceneObject } from "./object";
 
 class SkyboxObject extends SceneObject {
 
+    model: Object3D;
     material: MeshBasicMaterial = new MeshBasicMaterial();
     color = new Color(0xFFB6C1);
 
@@ -29,6 +30,7 @@ class SkyboxObject extends SceneObject {
         let skybox = new Mesh(skyboxGeometry, materialArray);
         skybox.position.set(0,0,0)
         this.model = skybox;
+        this.model.receiveShadow =true;
         return this;
     }
 

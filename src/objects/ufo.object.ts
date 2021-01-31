@@ -6,22 +6,17 @@ import { SceneObject } from "./object";
 
 class UfoObject extends SceneObject {
 
+    model: Object3D;
     material: MeshBasicMaterial = new MeshBasicMaterial();
     color = new Color(0xFFB6C1);
     cube: CubeCamera;
 
     async build() {
         return new Promise<void>((resolve, reject) => {
-            const cubeRenderTarget = new WebGLCubeRenderTarget( 512, { format: RGBFormat, generateMipmaps: true, minFilter: LinearMipmapLinearFilter } );
             const texture = new TextureLoader().load('./metal.jpg');
-            this.cube = new CubeCamera(0.1, 5000, cubeRenderTarget);
-            const chrome = new MeshPhongMaterial({
-                shininess: 100,
-                color: new Color("#ffffff"),
-                specular: 0xffaa00,
-                reflectivity: 0.9,
-                envMap: cubeRenderTarget.texture,
-                map: texture
+            const chrome = new MeshBasicMaterial({
+                map: texture,
+                side: DoubleSide
             });
             chrome.color.set("#ffffff")
             chrome.needsUpdate = true;
@@ -29,16 +24,12 @@ class UfoObject extends SceneObject {
             loader.load('./ufo.obj', (object: Object3D) => {
                 object.traverse((child) => {
                     if(child instanceof Mesh) {
-                        child.add(this.cube)
-                        this.material.color.set(this.color);
-
+                        child.castShadow  = true;
                         child.material = chrome;
-                        (child.material as MeshPhongMaterial).color.set("#ffffff")                        
                         child.geometry.center();
                     }
                 })
-                object.position.set(0, 5, 0)
-                this.cube.position.copy(object.position);
+                object.position.set(0, 8, 0)
                 object.scale.set(1.5, 1.5, 1.5);
                 object.rotateY(90);
                 this.model = object;
@@ -49,7 +40,6 @@ class UfoObject extends SceneObject {
     }
 
     publish(scene: Scene) {
-        scene.add(this.cube)
         scene.add(this.model);
         return this;
     }

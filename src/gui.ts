@@ -27,6 +27,20 @@ class ControlPanel {
         }
     }
 
+    addColor(folder: string, object: any) {
+        if(this.folders.has(folder)) {
+            var data = {
+                color: object.color.getHex(),    
+                mapsEnabled: true,
+                shadowMapSizeWidth: 512,
+                shadowMapSizeHeight: 512,
+            };
+            this.folders.get(folder).addColor(object, 'color').onChange(() => { 
+                object.color.setHex(Number(data.color.toString().replace('#', '0x'))) 
+            });
+        }
+    }
+
 }
 
 export { ControlPanel }
