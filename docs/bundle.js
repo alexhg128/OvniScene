@@ -25,6 +25,15 @@ scene.populate().then(function () {
     scene.addControllers(gui);
 });
 window.addEventListener("resize", scene.resize, false);
+var ufoAudio = new Audio("./ufo.mp3");
+ufoAudio.loop = true;
+ufoAudio.volume = 0.2;
+var cowAudio = new Audio("./cow.wav");
+cowAudio.volume = 0.15;
+document.body.addEventListener("click", function () {
+    //ufoAudio.play()
+    //cowAudio.play();
+});
 
 
 /***/ }),
@@ -52,6 +61,19 @@ var ControlPanel = /** @class */ (function () {
     ControlPanel.prototype.openFolder = function (folder) {
         if (this.folders.has(folder)) {
             this.folders.get(folder).open();
+        }
+    };
+    ControlPanel.prototype.addColor = function (folder, object) {
+        if (this.folders.has(folder)) {
+            var data = {
+                color: object.color.getHex(),
+                mapsEnabled: true,
+                shadowMapSizeWidth: 512,
+                shadowMapSizeHeight: 512,
+            };
+            this.folders.get(folder).addColor(object, 'color').onChange(function () {
+                object.color.setHex(Number(data.color.toString().replace('#', '0x')));
+            });
         }
     };
     return ControlPanel;
@@ -3694,7 +3716,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UfoScene = void 0;
 var three_1 = __webpack_require__(4);
 var objects_1 = __webpack_require__(5);
-var compatibility_1 = __webpack_require__(14);
+var ray_object_1 = __webpack_require__(14);
+var spotlight_object_1 = __webpack_require__(15);
+var compatibility_1 = __webpack_require__(16);
 var UfoScene = /** @class */ (function () {
     function UfoScene() {
         var _this = this;
@@ -3719,6 +3743,12 @@ var UfoScene = /** @class */ (function () {
             this.renderer = new three_1.WebGLRenderer({ antialias: true });
             this.renderer.setSize(window.innerWidth, window.innerHeight);
             this.renderer.setAnimationLoop(this.executeAnimations);
+            this.renderer.shadowMap.enabled = true;
+            this.renderer.shadowMap.type = three_1.PCFSoftShadowMap;
+            var scene_color = 0x000000;
+            var scene_color_alpha = 1;
+            this.renderer.setClearColor(scene_color, scene_color_alpha);
+            this.renderer.sortObjects = false;
             document.body.appendChild(this.renderer.domElement);
         }
         else {
@@ -3740,7 +3770,7 @@ var UfoScene = /** @class */ (function () {
     };
     UfoScene.prototype.populate = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var cow, p1, moon, skybox, ufo, p2;
+            var cow, p1, moon, skybox, ufo, p2, spotlight, planeGeometry, plane, planeGeometry2, text, plane2, ray;
             var _this = this;
             return __generator(this, function (_a) {
                 cow = new objects_1.CowObject();
@@ -3757,11 +3787,26 @@ var UfoScene = /** @class */ (function () {
                 ufo = new objects_1.UfoObject();
                 p2 = ufo.build().then(function () {
                     ufo.publish(_this.scene);
-                    ufo.model.visible = false;
-                    ufo.cube.update(_this.renderer, _this.scene);
-                    ufo.model.visible = true;
                 });
                 this.objects.push(ufo);
+                spotlight = new spotlight_object_1.SpotlightObject();
+                spotlight.build().publish(this.scene);
+                planeGeometry = new three_1.PlaneGeometry(10, 10);
+                plane = new three_1.Mesh(planeGeometry, new three_1.ShadowMaterial({ opacity: 1 }));
+                plane.rotateX(-Math.PI / 2);
+                plane.position.y = -4;
+                plane.receiveShadow = true;
+                plane.castShadow = true;
+                this.scene.add(plane);
+                planeGeometry2 = new three_1.PlaneGeometry(300, 300);
+                text = new three_1.TextureLoader().load('./dirt.jpeg');
+                plane2 = new three_1.Mesh(planeGeometry2, new three_1.MeshBasicMaterial({ map: text }));
+                plane2.rotateX(-Math.PI / 2);
+                plane2.position.y = -5;
+                this.scene.add(plane2);
+                ray = new ray_object_1.RayObject();
+                ray.build().publish(this.scene);
+                this.objects.push(ray);
                 return [2 /*return*/, Promise.all([p1, p2])];
             });
         });
@@ -3770,6 +3815,14 @@ var UfoScene = /** @class */ (function () {
         this.objects.forEach(function (e) {
             e.addControllers(gui);
         });
+        gui.addFolder("Camera (position)");
+        gui.addSlider("Camera (position)", this.camera.position, "x", -20, 20, 0.1);
+        gui.addSlider("Camera (position)", this.camera.position, "y", -20, 20, 0.1);
+        gui.addSlider("Camera (position)", this.camera.position, "z", -50, 50, 0.1);
+        gui.addFolder("Camera (rotation)");
+        gui.addSlider("Camera (rotation)", this.camera.rotation, "x", 0, Math.PI * 2, 0.1);
+        gui.addSlider("Camera (rotation)", this.camera.rotation, "y", 0, Math.PI * 2, 0.1);
+        gui.addSlider("Camera (rotation)", this.camera.rotation, "z", 0, Math.PI * 2, 0.1);
     };
     return UfoScene;
 }());
@@ -53370,7 +53423,7 @@ var CowObject = /** @class */ (function (_super) {
     __extends(CowObject, _super);
     function CowObject() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.material = new three_1.MeshBasicMaterial();
+        _this.material = new three_1.MeshLambertMaterial({ color: 0xFFB6C1 });
         _this.color = new three_1.Color(0xFFB6C1);
         return _this;
     }
@@ -53385,6 +53438,8 @@ var CowObject = /** @class */ (function (_super) {
                                 if (child instanceof three_1.Mesh) {
                                     _this.material.color.set(_this.color);
                                     child.material = _this.material;
+                                    child.castShadow = true;
+                                    child.receiveShadow = true;
                                     child.geometry.center();
                                 }
                             });
@@ -53403,7 +53458,6 @@ var CowObject = /** @class */ (function (_super) {
     CowObject.prototype.animate = function (time) {
         if (!this.model)
             return;
-        return;
         this.model.rotation.x = time / 5000;
     };
     CowObject.prototype.addControllers = function (gui) {
@@ -54392,7 +54446,7 @@ var MoonObject = /** @class */ (function (_super) {
         var moon_geometry = new three_1.SphereGeometry(1, 32, 32);
         var moon_mat = new three_1.MeshBasicMaterial({ map: moonTexture });
         var sphere = new three_1.Mesh(moon_geometry, moon_mat);
-        sphere.position.set(-3, 8, -10);
+        sphere.position.set(-7, 16, -15);
         this.model = sphere;
         var customMaterial = new three_1.ShaderMaterial({
             uniforms: {
@@ -54515,6 +54569,7 @@ var SkyboxObject = /** @class */ (function (_super) {
         var skybox = new three_1.Mesh(skyboxGeometry, materialArray);
         skybox.position.set(0, 0, 0);
         this.model = skybox;
+        this.model.receiveShadow = true;
         return this;
     };
     SkyboxObject.prototype.publish = function (scene) {
@@ -54612,16 +54667,10 @@ var UfoObject = /** @class */ (function (_super) {
             var _this = this;
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
-                        var cubeRenderTarget = new three_1.WebGLCubeRenderTarget(512, { format: three_1.RGBFormat, generateMipmaps: true, minFilter: three_1.LinearMipmapLinearFilter });
                         var texture = new three_1.TextureLoader().load('./metal.jpg');
-                        _this.cube = new three_1.CubeCamera(0.1, 5000, cubeRenderTarget);
-                        var chrome = new three_1.MeshPhongMaterial({
-                            shininess: 100,
-                            color: new three_1.Color("#ffffff"),
-                            specular: 0xffaa00,
-                            reflectivity: 0.9,
-                            envMap: cubeRenderTarget.texture,
-                            map: texture
+                        var chrome = new three_1.MeshBasicMaterial({
+                            map: texture,
+                            side: three_1.DoubleSide
                         });
                         chrome.color.set("#ffffff");
                         chrome.needsUpdate = true;
@@ -54629,15 +54678,12 @@ var UfoObject = /** @class */ (function (_super) {
                         loader.load('./ufo.obj', function (object) {
                             object.traverse(function (child) {
                                 if (child instanceof three_1.Mesh) {
-                                    child.add(_this.cube);
-                                    _this.material.color.set(_this.color);
+                                    child.castShadow = true;
                                     child.material = chrome;
-                                    child.material.color.set("#ffffff");
                                     child.geometry.center();
                                 }
                             });
-                            object.position.set(0, 5, 0);
-                            _this.cube.position.copy(object.position);
+                            object.position.set(0, 8, 0);
                             object.scale.set(1.5, 1.5, 1.5);
                             object.rotateY(90);
                             _this.model = object;
@@ -54648,7 +54694,6 @@ var UfoObject = /** @class */ (function (_super) {
         });
     };
     UfoObject.prototype.publish = function (scene) {
-        scene.add(this.cube);
         scene.add(this.model);
         return this;
     };
@@ -54674,6 +54719,139 @@ exports.UfoObject = UfoObject;
 
 /***/ }),
 /* 14 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RayObject = void 0;
+var three_1 = __webpack_require__(4);
+var object_1 = __webpack_require__(8);
+var RayObject = /** @class */ (function (_super) {
+    __extends(RayObject, _super);
+    function RayObject() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.material = new three_1.MeshBasicMaterial();
+        _this.color = new three_1.Color(0xFFB6C1);
+        return _this;
+    }
+    RayObject.prototype.build = function () {
+        var geometry = new three_1.CylinderGeometry(0.6, 8, 20, 32);
+        var material = new three_1.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.1 });
+        var cylinder = new three_1.Mesh(geometry, material);
+        this.model = cylinder;
+        this.model.castShadow = true;
+        this.model.receiveShadow = true;
+        this.model.position.set(0, -3, 0);
+        return this;
+    };
+    RayObject.prototype.publish = function (scene) {
+        scene.add(this.model);
+        console.log(this.model);
+        return this;
+    };
+    RayObject.prototype.animate = function (time) {
+        if (!this.model)
+            return;
+        return;
+        this.model.rotation.x = time / 5000;
+    };
+    RayObject.prototype.addControllers = function (gui) {
+        gui.addFolder("Ray (position)");
+        gui.addSlider("Ray (position)", this.model.position, "x", -150, 150, 0.1);
+        gui.addSlider("Ray (position)", this.model.position, "y", -150, 150, 0.1);
+        gui.addSlider("Ray (position)", this.model.position, "z", -150, 150, 0.1);
+        gui.addFolder("Ray (rotation)");
+        gui.addSlider("Ray (rotation)", this.model.rotation, "x", 0, Math.PI * 2, 0.1);
+        gui.addSlider("Ray (rotation)", this.model.rotation, "y", 0, Math.PI * 2, 0.1);
+        gui.addSlider("Ray (rotation)", this.model.rotation, "z", 0, Math.PI * 2, 0.1);
+    };
+    return RayObject;
+}(object_1.SceneObject));
+exports.RayObject = RayObject;
+
+
+/***/ }),
+/* 15 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SpotlightObject = void 0;
+var three_1 = __webpack_require__(4);
+var object_1 = __webpack_require__(8);
+var SpotlightObject = /** @class */ (function (_super) {
+    __extends(SpotlightObject, _super);
+    function SpotlightObject() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.material = new three_1.MeshBasicMaterial();
+        _this.color = new three_1.Color(0xFFB6C1);
+        return _this;
+    }
+    SpotlightObject.prototype.build = function () {
+        var light = new three_1.SpotLight();
+        light.castShadow = true;
+        light.shadow.mapSize.width = 1024;
+        light.shadow.mapSize.height = 1024;
+        light.shadow.camera.near = 0.1;
+        light.shadow.camera.far = 4000;
+        this.model = light;
+        this.model.angle = 0.3;
+        this.model.position.set(0, 6.5, 0);
+        console.log(this.model);
+        return this;
+    };
+    SpotlightObject.prototype.publish = function (scene) {
+        scene.add(this.model);
+        return this;
+    };
+    SpotlightObject.prototype.animate = function (time) {
+    };
+    SpotlightObject.prototype.addControllers = function (gui) {
+        gui.addFolder("Spotlight (position)");
+        gui.addSlider("Spotlight (position)", this.model.position, "x", -150, 150, 0.1);
+        gui.addSlider("Spotlight (position)", this.model.position, "y", 0, 20, 0.1);
+        gui.addSlider("Spotlight (position)", this.model.position, "z", -150, 150, 0.1);
+        gui.addFolder("Spotlight (rotation)");
+        gui.addSlider("Spotlight (rotation)", this.model.rotation, "x", 0, Math.PI * 2, 0.1);
+        gui.addSlider("Spotlight (rotation)", this.model.rotation, "y", 0, Math.PI * 2, 0.1);
+        gui.addSlider("Spotlight (rotation)", this.model.rotation, "z", 0, Math.PI * 2, 0.1);
+        gui.addFolder("Spotlight");
+        gui.addSlider("Spotlight", this.model, "angle", 0, Math.PI * 2, 0.1);
+        gui.addSlider("Spotlight", this.model, "penumbra", 0, 1, 0.1);
+    };
+    return SpotlightObject;
+}(object_1.SceneObject));
+exports.SpotlightObject = SpotlightObject;
+
+
+/***/ }),
+/* 16 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -54746,13 +54924,13 @@ exports.supportsWebGL = supportsWebGL;
 /******/ 		// This function allow to reference all chunks
 /******/ 		__webpack_require__.hu = (chunkId) => {
 /******/ 			// return url for filenames based on template
-/******/ 			return "f343c7d-" + chunkId + "-wps-hmr.js";
+/******/ 			return "4d1d463-" + chunkId + "-wps-hmr.js";
 /******/ 		};
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/get update manifest filename */
 /******/ 	(() => {
-/******/ 		__webpack_require__.hmrF = () => "f343c7d-wps-hmr.json";
+/******/ 		__webpack_require__.hmrF = () => "4d1d463-wps-hmr.json";
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
