@@ -34,13 +34,6 @@ class UfoScene {
 
     createScene() {
         this.scene = new Scene();
-        const near = 30;
-        const far = 90;
-        const color = 'black';
-        var light = new PointLight(0xffffff);
-	light.position.set(0,100,0);
-	this.scene.add(light);
-        //this.scene.fog = new FogExp2(color, 0.004);
     }
 
     createCamera() {
@@ -75,6 +68,13 @@ class UfoScene {
             ufo.model.visible = true;
         });
         this.objects.push(ufo);
+    }
+
+    resize = () => {
+        this.camera.aspect = window.innerWidth / window.innerHeight
+        this.camera.updateProjectionMatrix()
+        this.renderer.setSize(window.innerWidth, window.innerHeight)
+        this.render()
     }
 
 }

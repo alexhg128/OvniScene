@@ -12,6 +12,7 @@
     "publish": "shx rm -rf docs/ || true && yarn build && shx mv dist docs"
   },
   "devDependencies": {
+    "@types/dat.gui": "^0.7.6",
     "raw-loader": "^4.0.2",
     "shelljs": "^0.8.4",
     "shx": "^0.3.3",

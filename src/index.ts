@@ -19,3 +19,5 @@ scene.createRenderer();
 scene.populate().then(() => {
     scene.render();
 });
+
+window.addEventListener("resize", scene.resize, false);
