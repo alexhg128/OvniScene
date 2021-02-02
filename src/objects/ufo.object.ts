@@ -1,34 +1,53 @@
-import { type } from "superstruct";
-import { Color, CubeCamera, DoubleSide, LinearMipmapLinearFilter, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, MeshStandardMaterial, Object3D, RGBFormat, Scene, TextureLoader, WebGLCubeRenderTarget } from "three";
+import { BackSide, DoubleSide, FrontSide, Mesh, MeshBasicMaterial, MeshLambertMaterial, Object3D, Scene, TextureLoader } from "three";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import { ControlPanel } from "../gui";
 import { SceneObject } from "./object";
 
+//
+// Ufo object floating in the scene.
+//
 class UfoObject extends SceneObject {
 
+    // Object instance
     model: Object3D;
+
+    // Object material
     material: MeshBasicMaterial = new MeshBasicMaterial();
-    color = new Color(0xFFB6C1);
-    cube: CubeCamera;
 
     async build() {
-        return new Promise<void>((resolve, reject) => {
-            const texture = new TextureLoader().load('./metal.jpg');
+        return new Promise<void>((resolve) => {
+            //
+            // Create material from texture
+            //
+            const texture = new TextureLoader().load('./intento.jpg');
+            console.log(texture);
             const chrome = new MeshBasicMaterial({
                 map: texture,
-                side: DoubleSide
             });
-            chrome.color.set("#ffffff")
-            chrome.needsUpdate = true;
+            //
+            // Load obj file into a Object3D instance
+            //
             let loader = new OBJLoader();
-            loader.load('./ufo.obj', (object: Object3D) => {
+            loader.load('./ovni.obj', (object: Object3D) => {
                 object.traverse((child) => {
                     if(child instanceof Mesh) {
+                        //
+                        // Setup shadow casting for object
+                        //
                         child.castShadow  = true;
+                        //
+                        // Setup material for mesh
+                        //
                         child.material = chrome;
+                        //
+                        // Center the object geometry
+                        //
                         child.geometry.center();
                     }
                 })
+                //
+                // Rotate and position the object
+                //
                 object.position.set(0, 8, 0)
                 object.scale.set(1.5, 1.5, 1.5);
                 object.rotateY(90);
@@ -40,16 +59,25 @@ class UfoObject extends SceneObject {
     }
 
     publish(scene: Scene) {
+        //
+        // Add the object to the scene
+        //
         scene.add(this.model);
         return this;
     }
 
     animate(time: number) {
+        //
+        // Setup ufo rotation over time
+        //
         if(!this.model) return;
-        this.model.rotation.y = time / 2000;
+            this.model.rotation.y = time / 2000;
     }
 
     addControllers(gui: ControlPanel): void {
+        //
+        // Add GUI controls for position and rotation
+        //
         gui.addFolder("UFO(position)");
         gui.addSlider("UFO(position)", this.model.position, "x", -150, 150, 0.1);
         gui.addSlider("UFO(position)", this.model.position, "y", -150, 150, 0.1);
