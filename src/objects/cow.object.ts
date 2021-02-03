@@ -1,4 +1,4 @@
-import { Color, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, Object3D, Scene } from "three";
+import { Color, DoubleSide, FrontSide, Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshPhongMaterial, Object3D, Scene, TextureLoader } from "three";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import { ControlPanel } from "../gui";
 import { SceneObject } from "./object";
@@ -19,18 +19,23 @@ class CowObject extends SceneObject {
 
     async build() {
         return new Promise<void>((resolve, _reject) => {
+            const texture = new TextureLoader().load('./cow.png');
+            const mat = new MeshBasicMaterial({
+                map: texture,
+                side: FrontSide
+            });
             //
             // Load obj file into a Object3D instance
             //
             let loader = new OBJLoader();
-            loader.load('./cow.obj', (object: Object3D) => {
+            loader.load('./vaca.obj', (object: Object3D) => {
                 object.traverse((child) => {
                     //
                     // Setup material for mesh
                     //
                     if(child instanceof Mesh) {
                         this.material.color.set(this.color);
-                        child.material = this.material
+                        child.material = mat;
                         //
                         // Setup shadow casting for object
                         //
