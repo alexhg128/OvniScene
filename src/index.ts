@@ -20,6 +20,7 @@ scene.populate().then(() => {
     //
     // Create control panel and create controls
     //
+    
     const gui = new ControlPanel();
     scene.addControllers(gui);
 });
@@ -38,6 +39,7 @@ ufoAudio.volume = 0.2;
 var cowAudio = new Audio("./cow.wav");
 cowAudio.volume = 0.15;
 document.body.addEventListener("click", function () {
+    // Uncomment for audio play
     //ufoAudio.play()
     //cowAudio.play();
 })

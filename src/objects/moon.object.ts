@@ -4,27 +4,42 @@ import vShader from '../shaders/moon.v.glsl';
 import fShader from '../shaders/moon.f.glsl';
 import { ControlPanel } from "../gui";
 
+//
+// Background glowing moon object.
+//
 class MoonObject extends SceneObject {
 
+    // Object instance
     model: Object3D;
-    material: MeshBasicMaterial = new MeshBasicMaterial();
-    color = new Color(0xFFB6C1);
+
+    // Glow object
     glow: Object3D;
+
+    // Scene camera
     camera: PerspectiveCamera;
 
     constructor(camera: PerspectiveCamera) {
         super();
+        //
+        // Camera importing when building
+        //
         this.camera = camera;
     }
 
     build() {
+        //
+        // Moon texture loading and geometry generation
+        //
         const moonTexture = new TextureLoader().load('./moon.jpg');
         const moon_geometry = new SphereGeometry( 1, 32, 32 );
         const moon_mat = new MeshBasicMaterial( { map: moonTexture } );
-        const sphere = new Mesh( moon_geometry, moon_mat );
+        const sphere = new Mesh(moon_geometry, moon_mat);
         sphere.position.set(-7, 16, -15)
         this.model = sphere;
 
+        //
+        // Creation of custom material with custom shader for glowing
+        //
         var customMaterial = new ShaderMaterial( 
             {
                 uniforms: 
@@ -41,7 +56,9 @@ class MoonObject extends SceneObject {
                 transparent: true
             }   
         );
-                
+        //
+        // Creation of moon glow duplicate geometry
+        //
         this.glow = new Mesh(moon_geometry.clone(), customMaterial.clone());
         this.glow.position.set(this.model.position.x, this.model.position.y, this.model.position.z);
         this.glow.scale.multiplyScalar(1.2);
@@ -49,6 +66,9 @@ class MoonObject extends SceneObject {
     }
 
     publish(scene: Scene) {
+        //
+        // Add the object to the scene
+        //
         scene.add(this.model);
         scene.add(this.glow);
         return this;
@@ -59,6 +79,9 @@ class MoonObject extends SceneObject {
     }
 
     addControllers(gui: ControlPanel): void {
+        //
+        // Add GUI controls for position and rotation
+        //
         gui.addFolder("Moon (position)");
         gui.addSlider("Moon (position)", this.model.position, "x", -150, 150, 0.1);
         gui.addSlider("Moon (position)", this.model.position, "y", -150, 150, 0.1);
